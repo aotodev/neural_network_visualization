@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CoinCATcher</string>
+    <string translatable="false"  name="game_services_project_id"> 254788912684 </string>
+    <string translatable="false"  name="leaderboard_id"> CgkIrIzplLUHEAIQAg </string>
+</resources>

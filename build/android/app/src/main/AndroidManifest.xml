@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="art.acquarelli.neuralnetworksimulation">
+
+    <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
+    <!--android:dataExtractionRules="@xml/data_extraction_rules"-->
+    
+    <application
+        android:label="${appName}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher_foreground"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:screenOrientation="${appOrientation}"
+        android:supportsRtl="false"
+        android:theme="@style/AppTheme.NoActionBar"
+        tools:targetApi="31">
+
+        <activity
+            android:name="art.acquarelli.engine.GameActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="${appName}"
+            android:screenOrientation="${appOrientation}"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:configChanges="uiMode|density|screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard">
+            <layout android:minWidth="${appMinWidth}" android:minHeight="${appMinHeight}" />
+            <meta-data android:name="android.app.lib_name" android:value="engine_cpp" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data android:name="com.google.android.gms.games.APP_ID" android:value="@string/game_services_project_id"/>
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="${adsId}" />
+    </application>
+</manifest>

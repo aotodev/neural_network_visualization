@@ -1,0 +1,12 @@
+#directories
+
+bin/
+CMakeFiles/
+out/
+.vs/
+#.vscode
+windows/
+linux/
+
+#files
+**/desktop.ini

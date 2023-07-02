@@ -1,0 +1,176 @@
+plugins
+{
+    id 'com.android.application'
+}
+
+android
+{
+    namespace 'art.acquarelli.neuralnetworksimulation'
+
+    compileSdk 33
+    ndkVersion '25.1.8937393'
+    buildToolsVersion '34.0.0 rc1'
+
+    defaultConfig
+    {
+        applicationId "art.acquarelli.neuralnetworksimulation"
+        minSdk 28
+        targetSdk 33
+        versionCode 100
+        versionName "1.0"
+
+        manifestPlaceholders.appName = "Neural Network Simulation"
+        manifestPlaceholders.appOrientation = "landscape"
+        manifestPlaceholders.appMinWidth = "320dp"
+        manifestPlaceholders.appMinHeight = "144dp"
+
+        // test unit ad
+        buildConfigField "String", "ADMOB_UNIT_ID", "\"ca-app-pub-3940256099942544/5224354917\""
+    }
+
+    splits 
+    {
+        abi
+        {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk false
+        }
+    }
+
+    sourceSets 
+    {
+        main.assets.srcDirs = ['assets']
+        
+        debug
+        {
+            jniLibs.srcDirs += ['vulkan_validation_layers']
+        }
+    }
+
+    buildTypes
+    {
+        debug
+        {
+            debuggable true
+
+            // test ID
+            manifestPlaceholders.adsId = "ca-app-pub-3940256099942544~3347511713"
+            externalNativeBuild
+            {
+                cmake 
+                {
+                    arguments "-DCOMPRESS_ASTC=ON", "-DBUILD_DEBUG=ON", "-DBUILD_RELEASE=OFF", "-DBUILD_SHIPPING=OFF", "-DANDROID_STL=c++_static"
+                    cppFlags '-std=c++17 -w -Wl,-v' //NDK sets warnings=errors, -w ignores all warnings
+                }
+            }
+        }
+
+        release
+        {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // test ID
+            manifestPlaceholders.adsId = "ca-app-pub-3940256099942544~3347511713"
+
+            externalNativeBuild 
+            {
+                cmake 
+                {
+                    arguments "-DCOMPRESS_ASTC=ON", "-DBUILD_DEBUG=OFF", "-DBUILD_RELEASE=ON", "-DBUILD_SHIPPING=OFF", "-DANDROID_STL=c++_static"
+                    cppFlags '-std=c++17 -w -Wl,-v' //NDK sets warnings=errors, -w ignores all warnings
+                }
+            }
+        }
+
+        shipping
+        {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // test ID
+            manifestPlaceholders.adsId = "ca-app-pub-3940256099942544~3347511713"
+
+            externalNativeBuild 
+            {
+                cmake 
+                {
+                    arguments "-DCOMPRESS_ASTC=ON", "-DBUILD_DEBUG=OFF", "-DBUILD_RELEASE=OFF", "-DBUILD_SHIPPING=ON", "-DANDROID_STL=c++_static"
+                    cppFlags '-std=c++17 -w -Wl,-v' //NDK sets warnings=errors, -w ignores all warnings
+                }
+            }
+        }
+    }
+
+    compileOptions
+    {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    externalNativeBuild
+    {
+        cmake
+        {
+            path file('../../../CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
+
+    buildFeatures
+    {
+        viewBinding true
+    }
+
+    project.ext.versionCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, 'x86': 3, 'x86_64': 4 ]
+    applicationVariants.all
+    {
+        variant -> variant.outputs.all
+        {
+            output -> 
+            def abi = output.getFilter(com.android.build.OutputFile.ABI)
+            output.versionCodeOverride = project.ext.versionCodes.get(abi, 0) * 1000 + android.defaultConfig.versionCode
+            outputFileName = "AnnSimulation-" + abi + ".apk"
+        }
+    }
+}
+
+dependencies
+{
+    //noinspection GradleCompatible
+    implementation ('com.android.support:appcompat-v7:28.0.0')
+    {
+        exclude group: 'android.support.graphics.drawable'
+        exclude module: 'support-vector-drawable'
+    }
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.gms:play-services-ads:22.1.0'
+    implementation 'com.google.android.gms:play-services-games-v2:17.0.0'
+
+}
+
+task copyTask 
+{
+    copy
+    {
+        from '../../../resources'
+        into 'assets/resources'
+        include '**'
+    }
+
+    copy
+    {
+        from '../../../source/gensou_engine/res'
+        into 'assets/engine_res'
+        include 'shaders/spir-v/**'
+        include 'fonts/**'
+        include 'textures/**'
+    }
+}
+
+preBuild.dependsOn copyTask

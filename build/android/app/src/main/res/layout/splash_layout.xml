@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/splash_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#000000"
+    tools:context="art.acquarelli.engine.GameActivity">
+
+    <art.acquarelli.engine.ScalableVideoView
+    android:gravity="center"
+    android:layout_width="1280px"
+    android:layout_height="720px"
+    android:id="@+id/videoView" />
+<!-- 
+    <VideoView
+    android:layout_width="1280px"
+    android:layout_height="720px"
+    android:scale="center"
+    android:id="@+id/videoView"/> 
+-->
+    <!--android:layout_weight="1"-->
+
+
+</LinearLayout >
+<!--LinearLayout-->
