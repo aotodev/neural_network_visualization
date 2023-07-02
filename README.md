@@ -18,6 +18,9 @@ The best way to play with it is to just download the compiled builds on the Rele
 If you prefer to build it from source, follow the instructions bellow.
 
 
+https://github.com/aotodev/neural_network_visualization/assets/85173635/96b13468-031e-457a-9053-e0c0996b90f8
+
+
 ## Build
 ### Android
 You can build it for android using android studio with the latest Android SDK and NDK, which will already include all the necessary Vulkan dependencies.
