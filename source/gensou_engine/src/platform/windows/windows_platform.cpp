@@ -68,12 +68,12 @@ namespace gs {
 
 	window_properties window_properties::get_default(uint32_t width, uint32_t height)
 	{
-		return window_properties{ 
-			GAME_NAME, 
+		return window_properties{
+			GAME_NAME,
 			width, height,
-			float(ASPECT_RATIO_NUM) / float(ASPECT_RATIO_DEN), 
-			0, 0, 
-			"engine_res/textures/logo_small.png" 
+			ASPECT_RATIO_DEN > 0 ? float(ASPECT_RATIO_NUM) / float(ASPECT_RATIO_DEN) : ASPECT_RATIO_NUM,
+			0, 0,
+			"engine_res/textures/logo_small.png"
 		};
 	}
 
@@ -101,50 +101,56 @@ namespace gs {
 	void windows_window::init()
 	{
 		glfwSetErrorCallback([](int code, const char* description)
-		{
-			LOG_ENGINE(error, "GLFW ERROR, with code %d and message %s", code, description);
-		});
+			{
+				LOG_ENGINE(error, "GLFW ERROR, with code %d and message %s", code, description);
+			});
 
 		if (glfwInit() != GLFW_TRUE)
 			LOG_ENGINE(critical, "could not initialize glfw");
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); /* GLFW_FALSE */
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		auto pMonitor = glfwGetPrimaryMonitor();
 		int posX, posY, monitorWidth, monitorHeight;
 		glfwGetMonitorWorkarea(pMonitor, &posX, &posY, &monitorWidth, &monitorHeight);
 
-		monitorWidth = (int)((float)monitorWidth * 0.9f);
-		monitorHeight = (int)((float)monitorHeight * 0.9f);
-
-		if(m_extent == extent2d(0, 0))
+		if (m_extent == extent2d(0, 0))
 		{
-			constexpr float aspectRatio = float(ASPECT_RATIO_NUM) / float(ASPECT_RATIO_DEN);
-
-			if constexpr(ASPECT_RATIO_NUM == ASPECT_RATIO_DEN)
+			if (!m_initial_aspect_ratio)
 			{
-				uint32_t side = std::min(monitorWidth, monitorHeight);
-
-				m_extent.width = side;
-				m_extent.height = side;
-			}
-			else if constexpr (aspectRatio > 1)
-			{
-				m_extent.height = std::min(float(monitorHeight), monitorWidth / aspectRatio);
-				m_extent.width = m_extent.height * aspectRatio;
+				m_extent.width = monitorWidth;
+				m_extent.height = monitorHeight;
 			}
 			else
 			{
-				m_extent.width = std::min(float(monitorWidth), monitorHeight * aspectRatio);
-				m_extent.height = m_extent.width / aspectRatio;
+				monitorWidth = (int)((float)monitorWidth * 0.9f);
+				monitorHeight = (int)((float)monitorHeight * 0.9f);
+
+				if (ASPECT_RATIO_NUM == ASPECT_RATIO_DEN)
+				{
+					uint32_t side = std::min(monitorWidth, monitorHeight);
+
+					m_extent.width = side;
+					m_extent.height = side;
+				}
+				else if (m_initial_aspect_ratio > 1)
+				{
+					m_extent.height = std::min(float(monitorHeight), monitorWidth / m_initial_aspect_ratio);
+					m_extent.width = m_extent.height * m_initial_aspect_ratio;
+				}
+				else
+				{
+					m_extent.width = std::min(float(monitorWidth), monitorHeight * m_initial_aspect_ratio);
+					m_extent.height = m_extent.width / m_initial_aspect_ratio;
+				}
 			}
 		}
 
-		if(m_extent.width == 0)
+		if (m_extent.width == 0)
 			m_extent.width = (uint32_t)monitorWidth;
 
-		if(m_extent.height == 0)
+		if (m_extent.height == 0)
 			m_extent.height = (uint32_t)monitorHeight;
 
 		glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
@@ -155,7 +161,9 @@ namespace gs {
 			LOG_ENGINE(critical, "could not create glfw window");
 
 		glfwSetWindowSizeLimits(m_window, std::min(monitorWidth / 4, 8), std::min(monitorHeight / 4, 8), GLFW_DONT_CARE, GLFW_DONT_CARE);
-		glfwSetWindowAspectRatio(m_window, ASPECT_RATIO_NUM, ASPECT_RATIO_DEN);
+
+		//if(m_initial_aspect_ratio)
+			//glfwSetWindowAspectRatio(m_window, ASPECT_RATIO_NUM, ASPECT_RATIO_DEN);
 
 		/* make sure we stored the right resolution */
 		{
@@ -270,7 +278,7 @@ namespace gs {
 
 			glfwSetWindowFocusCallback(m_window, [](GLFWwindow* glfwWindow, int focus)
 			{ 
-				auto pWindow = static_cast<linux_window*>(glfwGetWindowUserPointer(glfwWindow));
+				auto pWindow = static_cast<windows_window*>(glfwGetWindowUserPointer(glfwWindow));
 				pWindow->set_focused(focus);
 
 				engine_events::change_focus.broadcast(focus);
@@ -283,7 +291,7 @@ namespace gs {
 
 			glfwSetWindowIconifyCallback(m_window, [](GLFWwindow* glfwWindow, int minimized)
 			{
-				auto pWindow = static_cast<linux_window*>(glfwGetWindowUserPointer(glfwWindow));
+				auto pWindow = static_cast<windows_window*>(glfwGetWindowUserPointer(glfwWindow));
 				pWindow->set_focused(bool(minimized));
 				pWindow->set_minimized(bool(minimized));
 
